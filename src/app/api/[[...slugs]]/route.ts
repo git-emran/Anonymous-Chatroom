@@ -17,8 +17,14 @@ const rooms =  new  Elysia({prefix: "/room"}).post("/create", async ()=> {
   return {roomId}
 })
 
-const messages = new Elysia({prefix:"/messages"}).use(authMiddleware).post("/", ({body, auth})=> {
+const messages = new Elysia({prefix:"/messages"}).use(authMiddleware).post("/", async({body, auth})=> {
   const {sender, text} = body
+  const {roomId} = auth
+  const roomExists = await redis.exists(`meta:${roomId}`)
+
+  if (!roomExists){
+    throw new Error("Room does not exist")
+  }
 
 
 }, {
