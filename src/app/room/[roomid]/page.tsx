@@ -5,6 +5,7 @@ import { client } from "@/lib/client"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useRef, useState } from "react"
+import { format } from "date-fns"
 
 
 function formatTimeRemaining(seconds: number)
@@ -91,13 +92,10 @@ const Page = () => {
               {msg.sender === username ? "YOU": msg.sender}
 
             </span>
-
+            <span className="text-[10px] text-zinc-600">{format(msg.timeStamp, "HH:mm")}</span>
           </div>
-        
-
+            <p className="text-sm text-zinc-300 leading-relaxed break-all">{msg.text}</p>
         </div>
-      
-
       </div>
     ))}
   
@@ -109,7 +107,7 @@ const Page = () => {
     <div className="flex gap-4">
       <div className="flex-1 relative group">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-green-500 animate-pulse">{">"}</span>
-        <input autoFocus value={input} onKeyDown={(e)=> {
+        <input ref={inputRef} autoFocus value={input} onKeyDown={(e)=> {
           if (e.key === "Enter" && input.trim()){
             //TODO: send message
             sendMessage({text: input})
