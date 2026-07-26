@@ -1,5 +1,8 @@
 "use client"
 
+import { useUsername } from "@/hooks/use-username"
+import { client } from "@/lib/client"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useRef, useState } from "react"
 
@@ -16,12 +19,31 @@ const Page = () => {
   const roomId = params.roomid as string
 
   
+  const {username} = useUsername()
 
   const [input, setInput] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const {data: messages} = useQuery({
+    queryKey: ["messages", roomId],
+    queryFn: async ()=> {
+      const res = await client.messages.get({
+        query: {roomId}
+      })
+      return res.data
+    }
+  })
+
   const [copyStatus, setCopyStatus] = useState("COPY")
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
+
+  const {mutate: sendMessage, isPending} = useMutation({
+    mutationFn: async ({text}: {text: string})=> {
+      await client.messages.post({
+        sender: username, text
+      }, {query: {roomId}})
+    }
+  })
 
   const copyLink = () => {
     const url = window.location.href
@@ -51,6 +73,36 @@ const Page = () => {
     </div>
     <button className="text-xs bg-zinc-800 hover:bg-red-600 px-3 py-1.5 rounded text-zinc-400 hover:text-white font-bold items-center gap-2 disabled:opacity-50 cursor-pointer"><span className="group-hover:animate-pulse">💣</span> DESTROY NOW</button>
   </header>
+
+  {/* Messages */}
+  <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
+    {messages?.messages.length === 0 && (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-zinc-600 text-sm font-mono"> No Messages Yet, Start the Conversation</p>
+
+      </div>
+    )}
+
+    {messages?.messages.map((msg)=> (
+      <div key={msg.id} className="flex flex-col items-start">
+        <div className="max-w-[80%] group">
+          <div className="flex items-baseline gap-3 mb-1">
+            <span className={`text-xs font-bold ${msg.sender === username ? "text-green-500": "text-blue-500"}`}>
+              {msg.sender === username ? "YOU": msg.sender}
+
+            </span>
+
+          </div>
+        
+
+        </div>
+      
+
+      </div>
+    ))}
+  
+
+  </div>
   <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
   </div>
   <div className="p-4 border-t border-zinc-800 bg-zinc-900/30">
@@ -60,12 +112,17 @@ const Page = () => {
         <input autoFocus value={input} onKeyDown={(e)=> {
           if (e.key === "Enter" && input.trim()){
             //TODO: send message
+            sendMessage({text: input})
+            
             inputRef.current?.focus()
           }
         }} onChange={(e)=> setInput(e.target.value)} placeholder="Type message..." type="text" className="w-full bg-black border focus:border-zinc-700 focus:outline-none transition-colors placeholder:text-zinc-700 py-3 pl-8 pr-4 text-sm" />
          
       </div>
-      <button className="bg-zinc-800 text-zinc-400 px-6 text-sm font-bold hover:text-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed">SEND</button>
+      <button onClick={()=> {
+        sendMessage({text: input})
+        inputRef.current?.focus()
+      }}disabled={!input.trim() || isPending} className="bg-zinc-800 text-zinc-400 px-6 text-sm font-bold hover:text-zinc-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed">SEND</button>
     </div>
   </div>
   </main>
