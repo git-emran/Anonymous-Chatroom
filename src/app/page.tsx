@@ -1,9 +1,11 @@
 'use client'
 
+import { Logo } from "@/components/logo";
 import { useUsername } from "@/hooks/use-username";
 import { client } from "@/lib/client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
+
 
 
 
@@ -48,13 +50,14 @@ export default function Home() {
 
 
 
-        <div className="text-center space-y-2"> 
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <Logo size={56} showLabel={false} />
+          </div>
           <h1 className="text-2xl font-bold tracking-tight text-green-500">
-          {">"}Private_chat
+            {">"}Private_chat
           </h1>
-          <p> A Private, Self-desctructing chat room</p>
-        
-          
+          <p className="text-zinc-500 text-sm">A Private, Self-destructing chat room</p>
         </div>
       
         <div className="border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
