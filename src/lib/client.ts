@@ -2,4 +2,10 @@ import { treaty } from '@elysiajs/eden'
 import { App } from '@/app/api/[[...slugs]]/route'
 
 
-export const client = treaty<App>("localhost:3000").api
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") return window.location.origin
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
+  return "http://localhost:3000"
+}
+
+export const client = treaty<App>(getBaseUrl()).api
