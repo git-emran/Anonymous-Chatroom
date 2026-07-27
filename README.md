@@ -8,3 +8,4 @@ No tracking, No information. Connect, Chat & Dispose.
 This chat-room is totally Anonymous, You hold your private conversations within the 10 minute timeframe, after the 10 minute mark every room is bound to self destruct, destroying all the information with it. You can also choose to self detonate by clicking the "Destroy Room" button. 
 
 
+<img width="1108" height="791" alt="home_anonymous_chat" src="https://github.com/user-attachments/assets/04250e06-555a-4008-a8a7-a6738d5a81aa" />
