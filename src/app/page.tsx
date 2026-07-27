@@ -5,31 +5,16 @@ import { useUsername } from "@/hooks/use-username";
 import { client } from "@/lib/client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 
-
-
-export default function Home() {
-  const {username} = useUsername()
-  const router = useRouter()
-
+function StatusBanners() {
   const searchParams = useSearchParams()
   const wasDestroyed = searchParams.get("destroyed") === "true"
   const error = searchParams.get("error")
 
-  const {mutate: createRoom} = useMutation({
-    mutationFn: async () => {
-      const res = await client.room.create.post()
-      if (res.status === 200) {
-        router.push(`/room/${res.data?.roomId}`)
-      }
-    }
-  })
-
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <>
       {wasDestroyed && (<div className="bg-red-950/50 border border-red-900 p-4 text-center">
           <p className="text-red-500 text-sm font-bold">ROOM DESTROYED</p>
           <p className="text-zinc-500 text-xs mt-1"> All messages were permenantly destroyed</p>
@@ -47,8 +32,31 @@ export default function Home() {
           <p className="text-zinc-500 text-xs mt-1">This Room is at maximum capacity</p>
         </div>
                                      )}
+    </>
+  )
+}
 
 
+export default function Home() {
+  const {username} = useUsername()
+  const router = useRouter()
+
+  const {mutate: createRoom} = useMutation({
+    mutationFn: async () => {
+      const res = await client.room.create.post()
+      if (res.status === 200) {
+        router.push(`/room/${res.data?.roomId}`)
+      }
+    }
+  })
+
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
+      <Suspense>
+        <StatusBanners />
+      </Suspense>
 
         <div className="text-center space-y-4">
           <div className="flex justify-center">
