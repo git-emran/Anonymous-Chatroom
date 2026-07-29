@@ -38,16 +38,35 @@ export const proxy = async(req: NextRequest) => {
   const token = nanoid()
 
   response.cookies.set("x-auth-token", token, {
-
     path: "/",
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict"
   })
 
+  // Normalize connected array in case it was stored as string
+  let connected = meta.connected;
+  if (typeof connected === "string") connected = JSON.parse(connected);
+
   await redis.hset(`meta:${roomId}`, {
-    connected: [...meta.connected, token]
+    connected: [...connected, token]
   })
+
+  try {
+    const { realtime } = await import("./lib/realtime")
+    const joinMessage = {
+      id: nanoid(),
+      sender: "System",
+      text: connected.length === 0 ? "Room creator joined." : "A user joined the room.",
+      timeStamp: Date.now(),
+      roomId
+    }
+    
+    await redis.rpush(`messages:${roomId}`, { ...joinMessage, token: "system" })
+    await realtime.channel(roomId).emit("chat.message", joinMessage)
+  } catch (err) {
+    console.error("Failed to emit join message", err)
+  }
 
   return response
 

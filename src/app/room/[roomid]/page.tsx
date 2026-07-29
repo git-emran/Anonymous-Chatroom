@@ -157,6 +157,13 @@ const Page = () => {
           )}
 
           {messages?.messages.map((msg) => (
+            msg.sender === "System" ? (
+              <div key={msg.id} className="flex justify-center my-2">
+                <span className="text-xs text-zinc-500 bg-zinc-800/30 px-3 py-1 rounded-full border border-zinc-800/50">
+                  {msg.text}
+                </span>
+              </div>
+            ) : (
             <div key={msg.id} className="flex flex-col items-start">
               <div className="max-w-[80%] group">
                 <div className="flex items-baseline gap-3 mb-1">
@@ -178,6 +185,7 @@ const Page = () => {
                 </p>
               </div>
             </div>
+            )
           ))}
         </div>
 
